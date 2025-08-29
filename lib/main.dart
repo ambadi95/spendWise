@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:spendwise/src/core/config/database.dart';
 import 'package:spendwise/src/features/Dashboard/Dasboard.dart';
 import 'package:spendwise/src/features/auth/login/login_screen.dart';
@@ -18,7 +19,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     final supabase = Supabase.instance.client;
     final currentUser = supabase.auth.currentUser;
-    return MaterialApp(
+    return GetMaterialApp(
       title: 'SpendWise',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import 'Screens/OverViewScreen.dart';
-import 'Screens/ProfileScreen.dart';
+import 'Screens/OverviewScreen/overview_screen.dart';
+import 'Screens/ProfileScreen/profile_screen.dart';
 
 class Dashboard extends StatefulWidget {
   @override

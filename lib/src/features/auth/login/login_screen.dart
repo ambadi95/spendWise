@@ -1,75 +1,77 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:spendwise/src/features/Dashboard/Dasboard.dart';
-import '../../../services/auth_services.dart';
+import 'package:spendwise/src/features/auth/login/login_controller.dart';
+import 'package:spendwise/src/features/auth/signup/signup_screen.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class LoginScreen extends StatefulWidget {
+  const LoginScreen({super.key});
+
   @override
   State<LoginScreen> createState() => _LoginScreenState();
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final _authService = AuthService();
-  final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
-  bool _loading = false;
+  @override
+  void initState() {
+    _setupAuthListener();
+    super.initState();
+  }
 
-  Future<void> _login() async {
-    setState(() => _loading = true);
-    try {
-      final res = await _authService.signIn(
-        _emailController.text,
-        _passwordController.text,
-      );
-      if (res.user != null) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => Dashboard()), // your dashboard with bottom nav
+  final supabase = Supabase.instance.client;
+  void _setupAuthListener() {
+    supabase.auth.onAuthStateChange.listen((data) {
+      final event = data.event;
+      if (event == AuthChangeEvent.signedIn) {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(
+            builder: (context) => Dashboard(),
+          ),
         );
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Login failed")));
       }
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Error: $e")));
-    } finally {
-      setState(() => _loading = false);
-    }
+    });
   }
 
-  Future<void> _googleLogin() async {
-    try {
-     await _authService.signInWithGoogle();
-     if (mounted) {
-       Navigator.pushReplacement(
-         context,
-         MaterialPageRoute(builder: (context) => Dashboard()), // your dashboard with bottom nav
-       );
-     }
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Google login error: $e")));
-    }
-  }
+  final _emailController = TextEditingController();
+
+  final _passwordController = TextEditingController();
+
+  final LoginController authC = Get.put(LoginController());
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Login")),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            TextField(controller: _emailController, decoration: const InputDecoration(labelText: "Email")),
-            TextField(controller: _passwordController, decoration: const InputDecoration(labelText: "Password"), obscureText: true),
+            TextField(
+                controller: _emailController,
+                decoration: const InputDecoration(labelText: "Email")),
+            TextField(
+                controller: _passwordController,
+                decoration: const InputDecoration(labelText: "Password"),
+                obscureText: true),
             const SizedBox(height: 20),
-            _loading
-                ? const CircularProgressIndicator()
-                : ElevatedButton(onPressed: _login, child: const Text("Login")),
-
+            ElevatedButton(
+                onPressed: () => authC.login(
+                    _emailController.text, _passwordController.text),
+                child: const Text("Login")),
+            Obx(() {
+              if (authC.isLoading.value) {
+                return const Center(child: CircularProgressIndicator());
+              }
+              return const SizedBox();
+            }),
             // Google login button
             const SizedBox(height: 20),
             ElevatedButton.icon(
               icon: const Icon(Icons.login),
               label: const Text("Continue with Google"),
-              onPressed: _googleLogin,
+              onPressed: authC.googleLogin,
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.red,
                 foregroundColor: Colors.white,
@@ -77,7 +79,7 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
 
             TextButton(
-              onPressed: () => {},
+              onPressed: () => { Get.offAll(() => SignUpScreen())},
               child: const Text("Don’t have an account? Sign Up"),
             ),
           ],
