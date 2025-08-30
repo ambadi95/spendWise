@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:spendwise/src/core/utils.dart';
+import 'addexpense_screen.dart';
 import 'overview_controller.dart';
 
 class OverviewScreen extends StatelessWidget {
   final double budget = 20000;
-  final double expenses = 12500;
 
   final OverviewController controller = Get.put(OverviewController());
 
@@ -14,14 +15,44 @@ class OverviewScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
         floatingActionButton: FloatingActionButton(
-            child: const Icon(Icons.add), onPressed: () => {}),
+            child: const Icon(Icons.add),
+            onPressed: () async {
+              await Get.to(AddExpenseScreen());
+              await controller.fetchTransactions();
+            }),
         body: Obx(() {
           if (controller.loading.value) {
             return const Center(child: CircularProgressIndicator());
           }
 
           if (controller.transactions.isEmpty) {
-            return const Center(child: Text('No transactions found.'));
+            return Center(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Center(
+                      child: Text(
+                    'Welcome ${controller.currentUserName}',
+                    style: const TextStyle(
+                        fontSize: 20, fontWeight: FontWeight.bold),
+                  )),
+                  const SizedBox(
+                    height: 20,
+                  ),
+                  const Center(child: Text('No transactions found.')),
+                  const SizedBox(
+                    height: 20,
+                  ),
+                  FloatingActionButton(
+                      child: const Icon(Icons.add),
+                      onPressed: () async {
+                        await Get.to(AddExpenseScreen());
+                        await controller.fetchTransactions();
+                      }),
+                ],
+              ),
+            );
           }
           return Padding(
             padding: const EdgeInsets.only(top: 40, left: 10, right: 10),
@@ -42,12 +73,12 @@ class OverviewScreen extends StatelessWidget {
                           style: TextStyle(
                               fontSize: 18, fontWeight: FontWeight.bold)),
                       const SizedBox(height: 10),
-                      Text("₹$expenses / ₹$budget",
+                      Text("₹${controller.totalAmount} / ₹$budget",
                           style: const TextStyle(
                               fontSize: 22, fontWeight: FontWeight.w600)),
                       const SizedBox(height: 8),
                       LinearProgressIndicator(
-                        value: expenses / budget,
+                        value: controller.totalAmount / budget,
                         color: Colors.teal,
                         backgroundColor: Colors.grey[300],
                       ),
@@ -68,15 +99,40 @@ class OverviewScreen extends StatelessWidget {
                   child: ListView.builder(
                     itemCount: controller.transactions.length,
                     itemBuilder: (context, index) {
-                      return Card(
-                        child: ListTile(
-                          leading: const Icon(Icons.shopping_cart,
-                              color: Colors.teal),
-                          title: Text(controller.transactions[index]['title']),
-                          subtitle:
-                              Text(controller.transactions[index]['category']),
-                          trailing: Text(
-                              "- ₹${controller.transactions[index]['amount']}"),
+                      return InkWell(
+                        onTap: () {
+                          Get.to(AddExpenseScreen(
+                            data: controller.transactions[index],
+                          ));
+                        },
+                        child: Card(
+                          child: ListTile(
+                            leading: const Icon(Icons.shopping_cart,
+                                color: Colors.teal),
+                            title: Row(
+                              children: [
+                                Text(controller.transactions[index]['title']),
+                                const Text(' | '),
+                                Text(
+                                    controller.transactions[index]['category']),
+                              ],
+                            ),
+                            subtitle: Row(
+                              children: [
+                                Text(
+                                    '${controller.transactions[index]['payment_type']} Transaction'),
+                              ],
+                            ),
+                            trailing: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                    formatFriendlyDate(controller.transactions[index]['transaction_date'])),
+                                Text(
+                                    "- ₹${controller.transactions[index]['amount']}"),
+                              ],
+                            ),
+                          ),
                         ),
                       );
                     },
