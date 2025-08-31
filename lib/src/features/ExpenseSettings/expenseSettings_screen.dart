@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:spendwise/src/features/ExpenseSettings/expenseSettings_controller.dart';
-import 'package:spendwise/src/features/ExpenseSettings/payment_mode_form_screen.dart';
-import 'package:spendwise/src/features/ExpenseSettings/widgets/payment_mode_add_button.dart';
 
 class ExpenseSettingsScreen extends StatelessWidget {
   const ExpenseSettingsScreen({super.key});
@@ -29,66 +27,59 @@ class ExpenseSettingsScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 10),
-
-              // Use Card for better visual grouping
-              Card(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                elevation: 3,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                      vertical: 16.0, horizontal: 16),
-                  child: Column(
-                    children: [
-                      _buildSettingRow(
-                          'Monthly Income', controller.monthlyIncome),
-                      const Divider(),
-                      _buildSettingRow(
-                          'Monthly Budget', controller.monthlyBudget),
-                      const Divider(),
-                      _buildSettingRow('Monthly Fixed Expenses',
-                          controller.monthlyFixedExpenses),
-                      const Divider(),
-                      _buildSettingRow(
-                          'Monthly Savings', controller.monthlySavings),
-                    ],
-                  ),
-                ),
+              _buildSettingsList(
+                 'Monthly Income',
+                controller.monthlyIncome.toString(),
+                Icons.calendar_view_month
+              ),
+              _buildSettingsList(
+                'Monthly Budget',
+                controller.monthlyBudget.toString(),
+                  Icons.show_chart
+              ),
+              _buildSettingsList(
+                'Monthly Fixed Expenses',
+                controller.monthlyFixedExpenses.toString(),
+                Icons.area_chart
+              ),
+              _buildSettingsList(
+                'Monthly Savings',
+                controller.monthlySavings.toString(),
+                Icons.savings_rounded
               ),
               const SizedBox(height: 10),
-              const Text(
-                'My Payments Modes',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              controller.paymentModes.isNotEmpty
-                  ? ListView.builder(
-                      itemCount: controller.paymentModes.length,
-                      shrinkWrap: true,
-                      itemBuilder: (BuildContext context, index) {
-                        return Card(
-                          child: ListTile(
-                            title: Text(controller.paymentModes[index]['name']),
-                            subtitle:
-                                Text(controller.paymentModes[index]['type']),
-                            trailing: Text(
-                                'Limit : ${controller.paymentModes[index]['monthly_expense_limit']}'),
-                          ),
-                        );
-                      })
-                  : const Padding(
-                      padding: EdgeInsets.all(10.0),
-                      child: Center(child: Text('No Payment Mode Added')),
-                    ),
-              const SizedBox(height: 10),
-              PaymentModeAddButton(
-                  onTap: () async {
-                  await Get.to(()=> const PaymentModeForm());
-                   controller.fetchPaymentModes();
-                  })
+              // const Text(
+              //   'My Payments Modes',
+              //   style: TextStyle(
+              //     fontSize: 18,
+              //     fontWeight: FontWeight.bold,
+              //   ),
+              // ),
+              // controller.paymentModes.isNotEmpty
+              //     ? ListView.builder(
+              //         itemCount: controller.paymentModes.length,
+              //         shrinkWrap: true,
+              //         itemBuilder: (BuildContext context, index) {
+              //           return Card(
+              //             child: ListTile(
+              //               title: Text(controller.paymentModes[index]['name']),
+              //               subtitle:
+              //                   Text(controller.paymentModes[index]['type']),
+              //               trailing: Text(
+              //                   'Limit : ${controller.paymentModes[index]['monthly_expense_limit']}'),
+              //             ),
+              //           );
+              //         })
+              //     : const Padding(
+              //         padding: EdgeInsets.all(10.0),
+              //         child: Center(child: Text('No Payment Mode Added')),
+              //       ),
+              // const SizedBox(height: 10),
+              // PaymentModeAddButton(
+              //     onTap: () async {
+              //     await Get.to(()=> const PaymentModeForm());
+              //      controller.fetchPaymentModes();
+              //     })
             ],
           );
         }
@@ -96,26 +87,22 @@ class ExpenseSettingsScreen extends StatelessWidget {
     ));
   }
 
-  Widget _buildSettingRow(String title, int value) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(
-          title,
-          style: const TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-        Text(
-          '₹${value.toString()}',
-          style: const TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-            color: Colors.green,
-          ),
-        )
-      ],
+  Widget _buildSettingsList(String title, String subtitle, IconData leadingIcon){
+    return ListTile(
+      title: Text(title),
+      titleTextStyle: const TextStyle(
+          color: Colors.teal,
+          fontSize: 18,
+          fontWeight: FontWeight.w600
+      ),
+      subtitle: Text(subtitle),
+      subtitleTextStyle: const TextStyle(
+        color: Colors.blueGrey,
+        fontSize: 16,
+          fontWeight: FontWeight.w400
+      ),
+      leading: Icon(leadingIcon, size: 30, color: Colors.teal, ),
+      trailing: const Icon(Icons.arrow_forward_ios, color: Colors.teal,),
     );
   }
 }
