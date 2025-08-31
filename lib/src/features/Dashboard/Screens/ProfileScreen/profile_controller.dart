@@ -11,7 +11,7 @@ List settings = [
     'icon' : Icons.calendar_month,
     'title' : 'Monthly Expense Settings',
     'subTitle' : '>',
-    'navTo' : ExpenseSettingsScreen()
+    'navTo' : const ExpenseSettingsScreen()
   },
   {
     'icon' : Icons.category,

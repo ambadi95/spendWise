@@ -4,6 +4,8 @@ import 'Screens/OverviewScreen/overview_screen.dart';
 import 'Screens/ProfileScreen/profile_screen.dart';
 
 class Dashboard extends StatefulWidget {
+  const Dashboard({super.key});
+
   @override
   _DashboardState createState() => _DashboardState();
 }

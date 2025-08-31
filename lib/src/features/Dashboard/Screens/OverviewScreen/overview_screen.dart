@@ -5,8 +5,6 @@ import 'addexpense_screen.dart';
 import 'overview_controller.dart';
 
 class OverviewScreen extends StatelessWidget {
-  final double budget = 20000;
-
   final OverviewController controller = Get.put(OverviewController());
 
   OverviewScreen({super.key});
@@ -73,12 +71,14 @@ class OverviewScreen extends StatelessWidget {
                           style: TextStyle(
                               fontSize: 18, fontWeight: FontWeight.bold)),
                       const SizedBox(height: 10),
-                      Text("₹${controller.totalAmount} / ₹$budget",
+                      Text(
+                          "₹${controller.totalAmount} / ₹${controller.monthlyBudget}",
                           style: const TextStyle(
                               fontSize: 22, fontWeight: FontWeight.w600)),
                       const SizedBox(height: 8),
                       LinearProgressIndicator(
-                        value: controller.totalAmount / budget,
+                        value:
+                            controller.totalAmount / controller.monthlyBudget,
                         color: Colors.teal,
                         backgroundColor: Colors.grey[300],
                       ),
@@ -95,49 +95,57 @@ class OverviewScreen extends StatelessWidget {
                     Text('Total spend ${controller.totalAmount.toString()}'),
                   ],
                 ),
-                Expanded(
-                  child: ListView.builder(
-                    itemCount: controller.transactions.length,
-                    itemBuilder: (context, index) {
-                      return InkWell(
-                        onTap: () {
-                          Get.to(AddExpenseScreen(
-                            data: controller.transactions[index],
-                          ));
-                        },
-                        child: Card(
-                          child: ListTile(
-                            leading: const Icon(Icons.shopping_cart,
-                                color: Colors.teal),
-                            title: Row(
-                              children: [
-                                Text(controller.transactions[index]['title']),
-                                const Text(' | '),
-                                Text(
-                                    controller.transactions[index]['category']),
-                              ],
-                            ),
-                            subtitle: Row(
-                              children: [
-                                Text(
-                                    '${controller.transactions[index]['payment_type']} Transaction'),
-                              ],
-                            ),
-                            trailing: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text(
-                                    formatFriendlyDate(controller.transactions[index]['transaction_date'])),
-                                Text(
-                                    "- ₹${controller.transactions[index]['amount']}"),
-                              ],
-                            ),
-                          ),
+                controller.transactions.isNotEmpty
+                    ? Expanded(
+                        child: ListView.builder(
+                          itemCount: controller.transactions.length,
+                          itemBuilder: (context, index) {
+                            return InkWell(
+                              onTap: () {
+                                Get.to(AddExpenseScreen(
+                                  data: controller.transactions[index],
+                                ));
+                              },
+                              child: Card(
+                                child: ListTile(
+                                  leading: const Icon(Icons.shopping_cart,
+                                      color: Colors.teal),
+                                  title: Row(
+                                    children: [
+                                      Text(controller.transactions[index]
+                                          ['title']),
+                                      const Text(' | '),
+                                      Text(controller.transactions[index]
+                                          ['category']),
+                                    ],
+                                  ),
+                                  subtitle: Row(
+                                    children: [
+                                      Text(
+                                          '${controller.transactions[index]['payment_type']} Transaction'),
+                                    ],
+                                  ),
+                                  trailing: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Text(formatFriendlyDate(
+                                          controller.transactions[index]
+                                              ['transaction_date'])),
+                                      Text(
+                                          "- ₹${controller.transactions[index]['amount']}"),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            );
+                          },
                         ),
-                      );
-                    },
-                  ),
-                )
+                      )
+                    : const Center(
+                        child: Padding(
+                        padding: EdgeInsets.all(8.0),
+                        child: Text('No Transactions yet'),
+                      ))
               ],
             ),
           );

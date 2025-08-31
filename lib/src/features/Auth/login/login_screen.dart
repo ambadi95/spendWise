@@ -24,11 +24,7 @@ class _LoginScreenState extends State<LoginScreen> {
     supabase.auth.onAuthStateChange.listen((data) {
       final event = data.event;
       if (event == AuthChangeEvent.signedIn) {
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(
-            builder: (context) => Dashboard(),
-          ),
-        );
+        Get.offAll(() => const Dashboard());
       }
     });
   }

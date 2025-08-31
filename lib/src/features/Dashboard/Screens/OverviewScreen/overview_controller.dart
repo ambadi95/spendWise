@@ -1,6 +1,7 @@
 
 
 import 'package:get/get.dart';
+import 'package:spendwise/src/core/config/tables.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class OverviewController extends GetxController {
@@ -9,6 +10,7 @@ class OverviewController extends GetxController {
   void onInit() {
     super.onInit();
     fetchTransactions();
+    fetchMonthlyBudget();
   }
 
   final supabase = Supabase.instance.client;
@@ -17,6 +19,24 @@ class OverviewController extends GetxController {
   var loading = true.obs;
   String currentUserName = '';
   double totalAmount = 0;
+  int monthlyBudget = 0;
+
+
+  Future<void> fetchMonthlyBudget() async {
+    loading.value = true;
+    final userId = supabase.auth.currentUser?.id;
+    if (userId == null) {
+      loading.value = false;
+      return;
+    }
+    final response = await supabase
+        .from(EXPENSESETTINGS)
+        .select()
+        .eq('user_id', userId).single();
+    var data = response;
+    monthlyBudget = data['monthly_budget'] ?? 0;
+    loading.value = false;
+  }
 
   // Fetch all transactions for the current user
   Future<void> fetchTransactions() async {
@@ -29,7 +49,7 @@ class OverviewController extends GetxController {
     }
     currentUserName = supabase.auth.currentUser?.userMetadata?['full_name'];
     final response = await supabase
-        .from('transactions')
+        .from(TRANSACTIONS)
         .select()
         .eq('user_id', userId);
 
@@ -52,7 +72,7 @@ class OverviewController extends GetxController {
     final userId = supabase.auth.currentUser?.id;
     if (userId == null) return;
 
-    final response = await supabase.from('transactions').insert({
+    final response = await supabase.from(TRANSACTIONS).insert({
       'user_id': userId,
       'title': title,
       'amount': amount,
@@ -76,7 +96,7 @@ class OverviewController extends GetxController {
     required String category,
     required String paymentMode,
   }) async {
-    await supabase.from('transactions').update({
+    await supabase.from(TRANSACTIONS).update({
       'title': title,
       'amount': amount,
       'category': category,

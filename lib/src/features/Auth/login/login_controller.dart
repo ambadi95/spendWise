@@ -14,9 +14,9 @@ class LoginController extends GetxController {
     Supabase.instance.client.auth.onAuthStateChange.listen((data) {
       final event = data.event;
       if (event == AuthChangeEvent.signedIn) {
-        Get.offAll(() => Dashboard());
+        Get.offAll(() => const Dashboard());
       } else if (event == AuthChangeEvent.signedOut) {
-        Get.offAll(() => LoginScreen());
+        Get.offAll(() => const LoginScreen());
       }
     });
   }
@@ -30,7 +30,7 @@ class LoginController extends GetxController {
       );
       if (res.user != null) {
         isLoading.value = false;
-        Get.offAll(() => Dashboard());
+        Get.offAll(() => const Dashboard());
       }
     } on AuthApiException catch (e) {
       isLoading.value = false;

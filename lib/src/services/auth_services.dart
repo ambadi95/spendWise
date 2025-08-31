@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import '../core/config/database.dart';
+import '../core/config/databaseConfig.dart';
 import '../features/auth/login/login_screen.dart';
 
 class AuthService {
@@ -21,14 +22,12 @@ class AuthService {
       if (context.mounted) {
         Navigator.pushAndRemoveUntil(
           context,
-          MaterialPageRoute(builder: (context) => LoginScreen()),
+          MaterialPageRoute(builder: (context) => const LoginScreen()),
               (route) => false, // clears all previous routes
         );
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Sign out error: $e")),
-      );
+      Get.snackbar('Sign out error:', e.toString());
     }
   }
 

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:spendwise/src/core/config/database.dart';
+import 'package:spendwise/src/core/config/databaseConfig.dart';
 import 'package:spendwise/src/features/Dashboard/Dasboard.dart';
 import 'package:spendwise/src/features/auth/login/login_screen.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -25,7 +25,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: currentUser == null ? LoginScreen() : Dashboard(),
+      home: currentUser == null ? const LoginScreen() : const Dashboard(),
     );
   }
 }
