@@ -37,92 +37,106 @@ class AddExpenseScreen extends StatelessWidget {
     return Scaffold(
       appBar:
           AppBar(title: Text(data != null ? 'Update Expense' : 'Add Expense')),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            TextField(
-              controller: titleController,
-              decoration: const InputDecoration(
-                labelText: 'Title',
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            children: [
+              TextField(
+                controller: titleController,
+                decoration: const InputDecoration(
+                  labelText: 'Title',
+                ),
               ),
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: amountController,
-              keyboardType: TextInputType.number,
-              decoration: const InputDecoration(
-                labelText: 'Amount',
+              const SizedBox(height: 16),
+              TextField(
+                controller: amountController,
+                keyboardType: TextInputType.number,
+                decoration: const InputDecoration(
+                  labelText: 'Amount',
+                ),
               ),
-            ),
-            const SizedBox(height: 16),
-            Obx(() => Column(
-                  children: [
-                    DropdownButtonFormField<String>(
-                      value: selectedCategory.value,
-                      items: categories
-                          .map(
-                              (e) => DropdownMenuItem(value: e, child: Text(e)))
-                          .toList(),
-                      onChanged: (val) {
-                        if (val != null) selectedCategory.value = val;
-                      },
-                      decoration: const InputDecoration(
-                        labelText: 'Category',
+              const SizedBox(height: 16),
+              Obx(() => Column(
+                    children: [
+                      DropdownButtonFormField<String>(
+                        value: selectedCategory.value,
+                        items: categories
+                            .map(
+                                (e) => DropdownMenuItem(value: e, child: Text(e)))
+                            .toList(),
+                        onChanged: (val) {
+                          if (val != null) selectedCategory.value = val;
+                        },
+                        decoration: const InputDecoration(
+                          labelText: 'Category',
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 16),
-                    DropdownButtonFormField<String>(
-                      value: selectedPaymentMode.value,
-                      items: paymentMode
-                          .map(
-                              (e) => DropdownMenuItem(value: e, child: Text(e)))
-                          .toList(),
-                      onChanged: (val) {
-                        if (val != null) selectedPaymentMode.value = val;
-                      },
-                      decoration: const InputDecoration(
-                        labelText: 'Payment Mode',
+                      const SizedBox(height: 16),
+                      DropdownButtonFormField<String>(
+                        value: selectedPaymentMode.value,
+                        items: paymentMode
+                            .map(
+                                (e) => DropdownMenuItem(value: e, child: Text(e)))
+                            .toList(),
+                        onChanged: (val) {
+                          if (val != null) selectedPaymentMode.value = val;
+                        },
+                        decoration: const InputDecoration(
+                          labelText: 'Payment Mode',
+                        ),
                       ),
-                    ),
-                  ],
-                )),
-            const SizedBox(height: 32),
-            ElevatedButton(
-              onPressed: () async {
-                final title = titleController.text.trim();
-                final amount = double.tryParse(amountController.text.trim());
-                final category = selectedCategory.value;
+                    ],
+                  )),
+              const SizedBox(height: 32),
+              ElevatedButton(
+                onPressed: () async {
+                  final title = titleController.text.trim();
+                  final amount = double.tryParse(amountController.text.trim());
+                  final category = selectedCategory.value;
 
-                if (title.isEmpty || amount == null) {
-                  Get.snackbar('Error', 'Please fill all fields');
-                  return;
-                }
-                if (data != null) {
-                  await controller.editExpense(
-                      id: data['id'].toString(),
-                      title: title,
-                      amount: amount,
-                      category: category,
-                      paymentMode: selectedPaymentMode.value);
-                } else {
-                  await controller.addExpense(
-                      title: title,
-                      amount: amount,
-                      category: category,
-                      paymentMode: selectedPaymentMode.value);
-                }
+                  if (title.isEmpty || amount == null) {
+                    Get.snackbar('Error', 'Please fill all fields');
+                    return;
+                  }
+                  if (data != null) {
+                    await controller.editExpense(
+                        id: data['id'].toString(),
+                        title: title,
+                        amount: amount,
+                        category: category,
+                        paymentMode: selectedPaymentMode.value);
+                  } else {
+                    await controller.addExpense(
+                        title: title,
+                        amount: amount,
+                        category: category,
+                        paymentMode: selectedPaymentMode.value);
+                  }
 
-                // Clear fields after adding
-                titleController.clear();
-                amountController.clear();
-                selectedCategory.value = 'Food';
+                  // Clear fields after adding
+                  titleController.clear();
+                  amountController.clear();
+                  selectedCategory.value = 'Food';
 
-                Get.back(); // Close the page
-              },
-              child: Text(data != null ? 'Update Expense' : 'Add Expense'),
-            )
-          ],
+                  Get.back(); // Close the page
+                },
+                child: Text(data != null ? 'Update Expense' : 'Add Expense'),
+              ),
+              data != null
+                  ? ElevatedButton(
+                      style:
+                          ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                      onPressed: () {
+                        controller.deleteExpense(id: data['id']);
+                        Get.back();
+                      },
+                      child: const Text('Delete Expense', style: TextStyle(
+                        color: Colors.white
+                      ),))
+                  : const SizedBox()
+            ],
+          ),
         ),
       ),
     );

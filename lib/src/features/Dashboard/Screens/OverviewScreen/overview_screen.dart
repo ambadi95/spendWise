@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:get/get.dart';
 import 'package:spendwise/src/core/utils.dart';
 import 'addexpense_screen.dart';
@@ -100,40 +101,54 @@ class OverviewScreen extends StatelessWidget {
                         child: ListView.builder(
                           itemCount: controller.transactions.length,
                           itemBuilder: (context, index) {
-                            return InkWell(
-                              onTap: () {
-                                Get.to(AddExpenseScreen(
-                                  data: controller.transactions[index],
-                                ));
-                              },
-                              child: Card(
-                                child: ListTile(
-                                  leading: const Icon(Icons.shopping_cart,
-                                      color: Colors.teal),
-                                  title: Row(
-                                    children: [
-                                      Text(controller.transactions[index]
-                                          ['title']),
-                                      const Text(' | '),
-                                      Text(controller.transactions[index]
-                                          ['category']),
-                                    ],
-                                  ),
-                                  subtitle: Row(
-                                    children: [
-                                      Text(
-                                          '${controller.transactions[index]['payment_type']} Transaction'),
-                                    ],
-                                  ),
-                                  trailing: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Text(formatFriendlyDate(
-                                          controller.transactions[index]
-                                              ['transaction_date'])),
-                                      Text(
-                                          "- ₹${controller.transactions[index]['amount']}"),
-                                    ],
+                            return Slidable(
+                              endActionPane: ActionPane(motion: const ScrollMotion(), children: [
+                                SlidableAction(
+                                  onPressed: (_) => controller.deleteExpense(id: controller.transactions[index]['id']),
+                                  backgroundColor: Colors.red,
+                                  icon: Icons.delete_forever,
+                                  label: 'Delete',
+                                )
+                              ]),
+                              child: InkWell(
+                                onTap: () {
+                                  Get.to(AddExpenseScreen(
+                                    data: controller.transactions[index],
+                                  ));
+                                },
+                                child: Card(
+                                  child: ListTile(
+                                    leading: const Icon(Icons.shopping_cart,
+                                        color: Colors.teal),
+                                    title: Row(
+                                      children: [
+                                        Expanded(
+                                          child: Text(controller.transactions[index]
+                                              ['title'], style: const TextStyle(
+                                            overflow: TextOverflow.ellipsis
+                                          ),),
+                                        ),
+                                        const Text(' | '),
+                                        Text(controller.transactions[index]
+                                            ['category']),
+                                      ],
+                                    ),
+                                    subtitle: Row(
+                                      children: [
+                                        Text(
+                                            '${controller.transactions[index]['payment_type']} Transaction'),
+                                      ],
+                                    ),
+                                    trailing: Column(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        Text(formatFriendlyDate(
+                                            controller.transactions[index]
+                                                ['transaction_date'])),
+                                        Text(
+                                            "- ₹${controller.transactions[index]['amount']}"),
+                                      ],
+                                    ),
                                   ),
                                 ),
                               ),

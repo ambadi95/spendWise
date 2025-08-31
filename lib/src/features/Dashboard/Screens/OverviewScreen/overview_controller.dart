@@ -1,5 +1,6 @@
 
 
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:spendwise/src/core/config/tables.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -84,7 +85,6 @@ class OverviewController extends GetxController {
     });
 
     if (response != null) {
-      // Refresh the transactions
       await fetchTransactions();
     }
   }
@@ -96,14 +96,30 @@ class OverviewController extends GetxController {
     required String category,
     required String paymentMode,
   }) async {
-    await supabase.from(TRANSACTIONS).update({
+   final response = await supabase.from(TRANSACTIONS).update({
       'title': title,
       'amount': amount,
       'category': category,
       'payment_type' : paymentMode,
-    }).eq('id', id);
+    }).eq('id', id).select();
+   if(response.isNotEmpty){
+     await fetchTransactions();
+   }
 
-    await fetchTransactions();
+  }
+
+  Future<void> deleteExpense({required int id})async{
+   final response = await supabase.from(TRANSACTIONS).delete().eq('id', id).select();
+    if(response.isNotEmpty){
+      Get.snackbar(
+        "Deleted",
+        "Expense Deleted Successfully",
+        snackPosition: SnackPosition.TOP,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+      await fetchTransactions();
+    }
   }
 
 }
