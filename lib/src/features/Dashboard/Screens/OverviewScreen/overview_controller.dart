@@ -19,8 +19,8 @@ class OverviewController extends GetxController {
   var transactions = <Map<String, dynamic>>[].obs;
   var loading = true.obs;
   String currentUserName = '';
-  double totalAmount = 0;
-  int monthlyBudget = 0;
+  var totalAmount = 0.0.obs;
+  var monthlyBudget = 0.obs;
 
 
   Future<void> fetchMonthlyBudget() async {
@@ -35,7 +35,7 @@ class OverviewController extends GetxController {
         .select()
         .eq('user_id', userId).single();
     var data = response;
-    monthlyBudget = data['monthly_budget'] ?? 0;
+    monthlyBudget.value = data['monthly_budget'] ?? 0;
     loading.value = false;
   }
 
@@ -54,7 +54,7 @@ class OverviewController extends GetxController {
         .select()
         .eq('user_id', userId);
 
-    totalAmount = response.fold<double>(
+    totalAmount.value = response.fold<double>(
       0,
           (previousValue, element) =>
       previousValue + (element['amount'] as num).toDouble(),

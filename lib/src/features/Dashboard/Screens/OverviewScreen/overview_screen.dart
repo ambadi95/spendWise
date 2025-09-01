@@ -79,7 +79,7 @@ class OverviewScreen extends StatelessWidget {
                       const SizedBox(height: 8),
                       LinearProgressIndicator(
                         value:
-                            controller.totalAmount / controller.monthlyBudget,
+                            controller.totalAmount / controller.monthlyBudget.toInt(),
                         color: Colors.teal,
                         backgroundColor: Colors.grey[300],
                       ),

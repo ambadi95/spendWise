@@ -12,6 +12,6 @@ String formatFriendlyDate(String dateString) {
     } else if (targetDate == yesterday) {
       return 'Yesterday';
     } else {
-      return DateFormat('d MMM').format(date); // e.g., 29 Aug
+      return DateFormat('d MMM y').format(date); // e.g., 29 Aug
     }
   }
