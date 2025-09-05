@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:spendwise/src/core/constants.dart';
+import 'package:spendwise/src/features/ExpenseSettings/common_screen/common_edit_update_screen.dart';
 import 'package:spendwise/src/features/ExpenseSettings/expenseSettings_controller.dart';
 import 'package:spendwise/src/features/MonthlyExpense/monthlyFixedExpense_screen.dart';
 
@@ -32,14 +34,32 @@ class ExpenseSettingsScreen extends StatelessWidget {
               ),
               const SizedBox(height: 10),
               _buildSettingsList(
-                () {},
+                () {
+                  Get.to( CommonEditUpdateScreen(
+                    title: 'Monthly Income',
+                    initialNumber: controller.monthlyIncome.toInt(),
+                    type: ExpenseType.MONTHLY_INCOME
+                  ));
+                },
                 'Monthly Income',
                 controller.monthlyIncome.toString(),
                 Icons.calendar_view_month,
               ),
-              _buildSettingsList(() {}, 'Monthly Budget',
+              _buildSettingsList(() {
+                Get.to( CommonEditUpdateScreen(
+                  title: 'Monthly Budget',
+                  initialNumber: controller.monthlyBudget.toInt(),
+                    type: ExpenseType.MONTHLY_BUDGET
+                ));
+              }, 'Monthly Budget',
                   controller.monthlyBudget.toString(), Icons.show_chart),
-              _buildSettingsList(() {}, 'Monthly Savings',
+              _buildSettingsList(() {
+                Get.to( CommonEditUpdateScreen(
+                    title: 'Monthly Savings',
+                    initialNumber: controller.monthlySavings.toInt(),
+                    type: ExpenseType.MONTHLY_SAVING
+                ));
+              }, 'Monthly Savings',
                   controller.monthlySavings.toString(), Icons.savings_rounded),
               _buildSettingsList(() {
                Get.to(const MonthlyFixedExpenseScreen());

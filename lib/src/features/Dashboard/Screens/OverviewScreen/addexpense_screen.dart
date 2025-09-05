@@ -11,7 +11,8 @@ class AddExpenseScreen extends StatelessWidget {
   final TextEditingController titleController = TextEditingController();
   final TextEditingController amountController = TextEditingController();
   final RxString selectedCategory = 'Food'.obs;
-  final RxString selectedPaymentMode = 'Bank'.obs;
+  final RxString selectedPaymentType = 'Bank'.obs;
+  final selectedMyPaymentMode = RxnString();
 
   final List<String> categories = [
     'Food',
@@ -28,20 +29,57 @@ class AddExpenseScreen extends StatelessWidget {
     'Other',
   ];
 
+  bool validateForm() {
+    if (titleController.text.isEmpty) {
+      Get.snackbar("Error", "Title is required");
+      return false;
+    }
+
+    if (amountController.text.isEmpty) {
+      Get.snackbar("Error", "Amount is required");
+      return false;
+    }
+
+    if (selectedPaymentType.value.isEmpty) {
+      Get.snackbar("Error", "Payment type is required");
+      return false;
+    }
+
+    if (selectedCategory.value.isEmpty) {
+      Get.snackbar("Error", "Category is required");
+      return false;
+    }
+
+    // Conditional check
+    if ((selectedPaymentType.value.toLowerCase() == "bank" ||
+        selectedPaymentType.value.toLowerCase() == "credit card") &&
+        selectedMyPaymentMode.value == null) {
+      Get.snackbar("Error", "Payment mode is required for bank or credit card");
+      return false;
+    }
+    return true; // all good
+  }
+
   @override
   Widget build(BuildContext context) {
     if (data != null) {
       titleController.text = data['title'];
       amountController.text = data['amount'].toString();
+      selectedPaymentType.value = data['payment_type'];
+      selectedCategory.value = data['category'];
+      if(controller.myPaymentModes.isNotEmpty && data['payment_mode_id'] != null){
+        selectedMyPaymentMode.value = data['payment_mode_id'].toString();
+      }
     }
     return Scaffold(
-      appBar:
-          AppBar(title: Text(data != null ? 'Update Expense' : 'Add Expense')),
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
             children: [
+              const SizedBox(
+                height: 40,
+              ),
               TextField(
                 controller: titleController,
                 decoration: const InputDecoration(
@@ -74,16 +112,31 @@ class AddExpenseScreen extends StatelessWidget {
                       ),
                       const SizedBox(height: 16),
                       DropdownButtonFormField<String>(
-                        value: selectedPaymentMode.value,
+                        value: selectedPaymentType.value,
                         items: paymentMode
                             .map(
                                 (e) => DropdownMenuItem(value: e, child: Text(e)))
                             .toList(),
                         onChanged: (val) {
-                          if (val != null) selectedPaymentMode.value = val;
+                          if (val != null) selectedPaymentType.value = val;
+                        },
+                        decoration: const InputDecoration(
+                          labelText: 'Payment Type',
+                        ),
+                      ),
+                      if(selectedPaymentType.value == 'Bank' || selectedPaymentType.value == 'Credit Card')
+                      DropdownButtonFormField<String>(
+                        value: selectedMyPaymentMode.value,
+                        items: controller.myPaymentModes.where((item) => item['type'] == selectedPaymentType.value)
+                            .map(
+                                (e) => DropdownMenuItem<String>(value: e['id'].toString(), child: Text(e['name'])))
+                            .toList(),
+                        onChanged: (val) {
+                          if (val != null)  selectedMyPaymentMode.value = val;
                         },
                         decoration: const InputDecoration(
                           labelText: 'Payment Mode',
+                          hintText: 'Select you Payment methods'
                         ),
                       ),
                     ],
@@ -95,23 +148,25 @@ class AddExpenseScreen extends StatelessWidget {
                   final amount = double.tryParse(amountController.text.trim());
                   final category = selectedCategory.value;
 
-                  if (title.isEmpty || amount == null) {
-                    Get.snackbar('Error', 'Please fill all fields');
-                    return;
-                  }
-                  if (data != null) {
-                    await controller.editExpense(
-                        id: data['id'].toString(),
-                        title: title,
-                        amount: amount,
-                        category: category,
-                        paymentMode: selectedPaymentMode.value);
-                  } else {
-                    await controller.addExpense(
-                        title: title,
-                        amount: amount,
-                        category: category,
-                        paymentMode: selectedPaymentMode.value);
+                  if (validateForm()) {
+                    if (data != null) {
+                      await controller.editExpense(
+                          id: data['id'].toString(),
+                          title: title,
+                          amount: amount!,
+                          category: category,
+                          paymentType: selectedPaymentType.value,
+                          paymentMode: selectedMyPaymentMode.value!
+                      );
+                    } else {
+                      await controller.addExpense(
+                          title: title,
+                          amount: amount!,
+                          category: category,
+                          paymentType: selectedPaymentType.value,
+                          paymentMode: selectedMyPaymentMode.value
+                      );
+                    }
                   }
 
                   // Clear fields after adding

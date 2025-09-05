@@ -1,0 +1,7 @@
+
+
+ enum ExpenseType {
+  MONTHLY_INCOME,
+  MONTHLY_BUDGET,
+  MONTHLY_SAVING
+ }
