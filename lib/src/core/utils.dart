@@ -15,3 +15,10 @@ String formatFriendlyDate(String dateString) {
       return DateFormat('d MMM y').format(date); // e.g., 29 Aug
     }
   }
+
+String dayWithSuffix(int month) {
+  if (month == 1) return "1st";
+  if (month == 2) return "2nd";
+  if (month == 3) return "3rd";
+  return "${month}th";
+}

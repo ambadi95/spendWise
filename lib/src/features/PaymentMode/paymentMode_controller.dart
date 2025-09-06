@@ -9,6 +9,7 @@ class PaymentModeController extends GetxController {
   /// Observables
   var loading = false.obs;
   var paymentModes = <Map<String, dynamic>>[].obs;
+  var paymentModesTransactions = <Map<String, dynamic>>[].obs;
 
   /// Expense Settings
   int monthlyIncome = 0;
@@ -16,6 +17,7 @@ class PaymentModeController extends GetxController {
   int monthlySavings = 0;
   int monthlyFixedExpenses = 0;
   double totalAmount = 0;
+  RxDouble totalSpend = 0.0.obs;
 
   @override
   void onInit() {
@@ -30,10 +32,10 @@ class PaymentModeController extends GetxController {
   }
 
   ///update Monthly Fixed Expense in DB
-  Future<void> updateFixedExpenses(int monthlyFixed, String userId) async{
-    await supabase.from(EXPENSESETTINGS).update({
-      'payment_mode_limit' : monthlyFixed
-    }).eq('user_id', userId);
+  Future<void> updateFixedExpenses(int monthlyFixed, String userId) async {
+    await supabase
+        .from(EXPENSESETTINGS)
+        .update({'payment_mode_limit': monthlyFixed}).eq('user_id', userId);
   }
 
   /// Fetch Payment Modes
@@ -48,18 +50,18 @@ class PaymentModeController extends GetxController {
 
     try {
       final response =
-      await supabase.from(PAYMENTMODE).select().eq('user_id', userId);
+          await supabase.from(PAYMENTMODE).select().eq('user_id', userId);
 
       totalAmount = response.fold<double>(
         0,
-            (previousValue, element) =>
-        previousValue + (element['monthly_expense_limit'] as num).toDouble(),
+        (previousValue, element) =>
+            previousValue +
+            (element['monthly_expense_limit'] as num).toDouble(),
       );
 
       paymentModes.value = List<Map<String, dynamic>>.from(response);
 
       await updateFixedExpenses(totalAmount.toInt(), userId);
-
     } catch (e) {
       Get.snackbar("Error", "Failed to fetch payment modes: $e");
     } finally {
@@ -112,9 +114,7 @@ class PaymentModeController extends GetxController {
   }
 
   /// Add Payment Mode
-  Future<void> deletePaymentMode({
-    required int id
-  }) async {
+  Future<void> deletePaymentMode({required int id}) async {
     _setLoading(true);
 
     final userId = supabase.auth.currentUser?.id;
@@ -124,7 +124,8 @@ class PaymentModeController extends GetxController {
     }
 
     try {
-      final response = await supabase.from(PAYMENTMODE).delete().eq('id', id).select();
+      final response =
+          await supabase.from(PAYMENTMODE).delete().eq('id', id).select();
 
       if (response.isNotEmpty) {
         await fetchPaymentModes();
@@ -143,6 +144,30 @@ class PaymentModeController extends GetxController {
     }
   }
 
+  ///update Monthly Fixed Expense in DB
+  Future<void> getTransactionsByPaymentMode(int id) async {
+    _setLoading(true);
+
+    final userId = supabase.auth.currentUser?.id;
+    if (userId == null) {
+      _setLoading(false);
+      return;
+    }
+    var response =
+        await supabase.from(TRANSACTIONS).select().eq('payment_mode_id', id);
+    if (response.isNotEmpty) {
+      _setLoading(false);
+      totalSpend.value = response.fold<double>(
+        0,
+            (previousValue, element) =>
+        previousValue +
+            (element['amount'] as num).toDouble(),
+      );
+      paymentModesTransactions.value =
+          List<Map<String, dynamic>>.from(response);
+    }
+    _setLoading(false);
+  }
 
   /// Helper: manage loading state
   void _setLoading(bool value) {

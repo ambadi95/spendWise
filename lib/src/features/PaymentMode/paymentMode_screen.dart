@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:spendwise/src/core/widgets/SlidableCard.dart';
+import 'package:spendwise/src/features/PaymentMode/payment_mode_detail_screen.dart';
 import 'payment_mode_form_screen.dart';
 import 'paymentMode_controller.dart';
 
@@ -9,8 +10,7 @@ class PaymentModeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final PaymentModeController controller =
-        Get.put(PaymentModeController());
+    final PaymentModeController controller = Get.put(PaymentModeController());
     return Scaffold(
       body: Obx(() {
         if (controller.loading.value) {
@@ -58,6 +58,10 @@ class PaymentModeScreen extends StatelessWidget {
                       shrinkWrap: true,
                       itemBuilder: (BuildContext context, index) {
                         return SlidableCard(
+                          onTap: () => Get.to(PaymentModeDetailScreen(
+                            title: controller.paymentModes[index]['name'],
+                            data: controller.paymentModes[index],
+                          )),
                           onPressDelete: (_) => controller.deletePaymentMode(
                               id: controller.paymentModes[index]['id']),
                           title: Text(controller.paymentModes[index]['name']),
@@ -72,10 +76,6 @@ class PaymentModeScreen extends StatelessWidget {
                       child: Center(child: Text('No Payment Mode Added')),
                     ),
               const SizedBox(height: 10),
-              // PaymentModeAddButton(
-              //     onTap: () async {
-
-              //     })
             ],
           ),
         );
